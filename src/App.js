@@ -87,11 +87,16 @@ class App extends Component {
     // symbol is operation
     if (operators.indexOf(symbol) > -1) {
       console.log('operator');
-    
+
       if (this.state.prev.length && !this.state.equalMode) {
         // prev.push(this.state.current);
         const res = this.eval2nums();
-        this.setState({current: res, prev: [res, symbol], displayRes: true});
+        this.setState({
+          current: res,
+          prev: [res, symbol],
+          displayRes: true,
+          decimal: res % 1 !== 0
+        });
       } else {
         this.setState(prevState => {
           return {
@@ -107,12 +112,17 @@ class App extends Component {
     }
 
     // symbol is equal sign
-    if(symbol === '='){
-      if(this.state.prev.length){
+    if (symbol === '=') {
+      if (this.state.prev.length) {
         const res = this.eval2nums();
         let prev = [...this.state.prev];
         prev[0] = this.state.current;
-        this.setState({current: res, prev: prev, equalMode: true});
+        this.setState({
+          current: res,
+          prev: prev,
+          equalMode: true,
+          decimal: res % 1 !== 0
+        });
 
       }
     }
