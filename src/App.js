@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
-
+import style from './App.module.css';
 import Button from './Button/Button';
-
+const operators = ['+', '-', 'X', '/'];
+const numbers = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0].map((symbol) => '' + symbol);
+const symbols = operators.concat(numbers.concat(['.', '=']));
 class App extends Component {
   constructor(props) {
     super(props);
@@ -15,11 +17,24 @@ class App extends Component {
   }
 
   resetHandler = () => {
-    this.setState({result: 0});
+    this.setState({current: '0', prev: [], decimal: false});
   }
 
-  eval2nums = (prev) => {
-    const second = +prev.pop();
+  keyHandler = (event) => {
+    console.log(event.key, typeof event.key);
+    if (event.key === 'Enter') {
+      this.evalHandler('=')
+    }
+    if (symbols.indexOf(event.key) > -1) {
+      this.evalHandler(event.key);
+    }
+
+  }
+
+
+  eval2nums = () => {
+    let prev = [...this.state.prev];
+    const second = +this.state.current;
     const operation = prev.pop();
     const first = +prev.pop();
 
@@ -28,10 +43,9 @@ class App extends Component {
     switch (operation) {
       case '+':
         return first + second;
-
       case '-':
         return first - second;
-      case '*':
+      case 'X':
         return first * second;
       case '/':
         return first / second;
@@ -40,67 +54,65 @@ class App extends Component {
   }
 
   evalHandler = (symbol) => {
-    console.log(symbol);
-    console.log(this.state.prev);
-    let prev = [...this.state.prev];
+    console.log(typeof symbol, symbol);
+    // console.log(this.state.prev);
 
+    // symbol is number
+    if (numbers.indexOf(symbol) > -1) {
+      console.log('number');
+      if (this.state.current === '0' || this.state.displayRes) {
+        this.setState({current: symbol, displayRes: false});
+      } else {
+        this.setState(prevState => {
+          return {current: prevState.current + symbol}
+        })
+      }
+      return;
+    }
 
-    if (prev.length > 2) {
-      const res = this.eval2nums(prev);
-      prev.push(res);
-      if (symbol !== '=') {
-        prev.push(symbol);
+    //symbol is decimal
+    if (symbol === '.') {
+      console.log('decimal');
+
+      if (!this.state.decimal)
+        this.setState(prevState => {
+          return {
+            current: prevState.current + symbol,
+            decimal: true
+          }
+        });
+      return;
+    }
+
+    // symbol is operation
+    if (operators.indexOf(symbol) > -1) {
+      console.log('operator');
+    
+      if (this.state.prev.length && !this.state.equalMode) {
+        // prev.push(this.state.current);
+        const res = this.eval2nums();
+        this.setState({current: res, prev: [res, symbol], displayRes: true});
+      } else {
+        this.setState(prevState => {
+          return {
+            current: '0',
+            prev: [prevState.current, symbol],
+            equalMode: false,
+            decimal: false,
+          }
+        })
       }
 
-      this.setState({prev: prev, current: res});
+      return;
     }
-    else {
-      switch (symbol) {
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-          prev.push(this.state.current);
-          if (prev.length > 2) {
-            const res = this.eval2nums(prev);
-            prev.push(res);
-          }
-          prev.push(symbol);
-          this.setState((prevState) => {
-            return {
-              current: '0',
-              prev: prev,
-              lastOperation: symbol,
-              lastNum: prevState.current
-            }
-          });
 
-          break;
-
-        case '=':
-          if (prev.length == 2) {
-            prev.push(this.state.current);
-            console.log('= lastnum:' ,this.state.lastNum);
-            const res = this.eval2nums(prev);
-            this.setState((prevState) => {
-              return {
-                current: res,
-                // lastNum: prevState.current
-              }
-            });
-          }
-          else if (this.state.lastOperation) {
-            prev.push(this.state.lastNum);
-            prev.push(this.state.lastOperation);
-            this.setState({prev: prev});
-            // this.eval('=');
-          }
-          break;
-        default:
-          this.setState((prevState) => {
-            return {current: prevState.current + symbol}
-          });
-          return;
+    // symbol is equal sign
+    if(symbol === '='){
+      if(this.state.prev.length){
+        const res = this.eval2nums();
+        let prev = [...this.state.prev];
+        prev[0] = this.state.current;
+        this.setState({current: res, prev: prev, equalMode: true});
 
       }
     }
@@ -110,15 +122,43 @@ class App extends Component {
 
 
   render() {
-    const reset = <Button key='C' symbol='C' action={this.resetHandler} />;
-    const symbols = [7, 8, 9, '/', 4, 5, 6, '-', 1, 2, 3, '+', 0, '.', '='].map((symbol) => '' + symbol);
-    const buttons = [reset].concat(symbols.map(sym => <Button key={sym} symbol={sym} action={this.evalHandler} />))
+    const reset = <Button
+      className={[style.Button, style.Clear].join(' ')}
+      key='C'
+      symbol='C'
+      action={this.resetHandler} />;
+
+    let buttons = symbols.map(sym => {
+      let classStyle = [style.Button];
+      if (sym === '=') {
+        classStyle.push(style.Equal);
+      }
+      else if (sym >= '0' && sym <= '9') {
+        classStyle.push(style.Number);
+      }
+      else {
+        classStyle.push(style.Operator);
+      }
+
+      return (
+        <Button
+          className={classStyle.join(' ')}
+          key={sym}
+          symbol={sym}
+          action={this.evalHandler}
+          keyPress={this.keyHandler} />
+      )
+    });
+
+    buttons = buttons.concat(reset);
 
     return (
-      <div>
+      <div className={style.App} onKeyPress={(e) => this.keyHandler(e)}>
         {/* <input type='text' value={this.state.current} onChange={this.changeHandler} /> */}
-        {this.state.current}
-        {buttons}
+        <div className={style.Result}>{this.state.current}</div>
+        <div className={style.Calculator}>
+          {buttons}
+        </div>
       </div>
     );
   }

@@ -1,0 +1,49 @@
+.App {
+  justify-content: center;
+  margin: 2rem 10rem 0 10rem;
+}
+
+@media (max-width: 800px) {
+  .App {
+    margin: 0;
+  }
+}
+
+.Result {
+  padding: 2rem;
+  font-size: 1.7rem;
+  border: 3px solid black;
+
+}
+
+.Calculator {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  align-content: center;
+}
+
+
+
+.Button {
+  padding: 2rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  background-color: white;
+
+}
+
+.Equal {
+  grid-row: 2 / span 4;
+  background-color: darkslategray;
+  color: white;
+  grid-column: 4;
+}
+
+.Operator {
+  background-color: rgb(73, 73, 73);
+  color: white;
+}
+
+.Clear {
+  background-color: orange;
+}
