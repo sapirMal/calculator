@@ -9,7 +9,8 @@ class Button extends Component {
             <button
                 className={this.props.className}
                 onClick={() => this.props.action(symbol)}
-                onKeyPress={(e) => this.props.keyPress(e)}>{symbol}</button>
+                // onKeyPress={(e) => this.props.keyPress(e)}
+                >{symbol}</button>
 
         )
 

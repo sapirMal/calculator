@@ -113,10 +113,14 @@ class App extends Component {
 
     // symbol is equal sign
     if (symbol === '=') {
+      console.log('symbol is =');
       if (this.state.prev.length) {
         const res = this.eval2nums();
         let prev = [...this.state.prev];
-        prev[0] = this.state.current;
+
+        if (!this.state.equalMode) {
+          prev[0] = this.state.current;
+        }
         this.setState({
           current: res,
           prev: prev,
