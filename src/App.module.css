@@ -40,8 +40,8 @@
 }
 
 .Operator {
-  background-color: rgb(73, 73, 73);
-  color: white;
+  background-color: lightgray;
+  /* color: white; */
 }
 
 .Clear {
